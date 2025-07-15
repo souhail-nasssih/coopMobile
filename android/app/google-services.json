@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "445748384517",
+    "project_id": "coop-41b51",
+    "storage_bucket": "coop-41b51.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445748384517:android:9bcad9952963b5460b1d6c",
+        "android_client_info": {
+          "package_name": "com.example.coop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtwooOGtA1yRTya_EOe-Oarb7Sin9gIlE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445748384517:android:81f0194e787d5eb10b1d6c",
+        "android_client_info": {
+          "package_name": "com.tonapp.gestioncoop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtwooOGtA1yRTya_EOe-Oarb7Sin9gIlE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
