@@ -345,7 +345,7 @@ class _GoogleAuthButtonState extends State<GoogleAuthButton> {
               )
             : OutlinedButton.icon(
                 icon: const Icon(Icons.login),
-                label: const Text('Connexion Google'),
+                label: const Text('Conx Google'),
                 onPressed: _handleAuthAction,
               );
   }
