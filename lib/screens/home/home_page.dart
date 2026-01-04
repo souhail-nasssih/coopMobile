@@ -3,6 +3,7 @@ import 'package:gestioncoop/models/Produit.dart';
 import 'package:gestioncoop/screens/home/product_detail_page.dart';
 import 'package:gestioncoop/services/produit_service.dart';
 import 'package:gestioncoop/widgets/products/product_grid.dart';
+import 'package:gestioncoop/theme/app_theme.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,38 +26,33 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-
-      body: Column(
-        children: [
-          // const HeroBanner(
-          //   title: 'SOUTENEZ LES COOPÉRATIVES',
-          //   subtitle: '100% des bénéfices reviennent aux producteurs',
-          //   buttonText: 'Découvrir les coopératives',
-          //   statsText: '+80% revenu',
-          // ),
-          // Solution clé : Expanded pour donner une hauteur contrainte
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                setState(() {
-                  _futureProduits = _produitService.fetchProduits();
-                });
-              },
-              child: ProductGrid(
-                futureProduits: _futureProduits,
-                onProductTap: (produit) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductDetailPage(produit: produit),
-                    ),
-                  );
+      backgroundColor: AppTheme.backgroundLight,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  setState(() {
+                    _futureProduits = _produitService.fetchProduits();
+                  });
                 },
+                color: Theme.of(context).colorScheme.primary,
+                child: ProductGrid(
+                  futureProduits: _futureProduits,
+                  onProductTap: (produit) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailPage(produit: produit),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

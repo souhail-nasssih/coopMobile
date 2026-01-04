@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestioncoop/models/Produit.dart';
+import 'package:gestioncoop/helpers/responsive.dart';
 import 'product_card.dart';
 
 class ProductGrid extends StatelessWidget {
@@ -7,7 +8,7 @@ class ProductGrid extends StatelessWidget {
   final Function(Produit)? onProductTap;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
-  final int crossAxisCount;
+  final int? crossAxisCount;
 
   const ProductGrid({
     super.key,
@@ -15,11 +16,13 @@ class ProductGrid extends StatelessWidget {
     this.onProductTap,
     this.shrinkWrap = false,
     this.physics,
-    this.crossAxisCount = 2,
+    this.crossAxisCount,
   });
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
+    
     return FutureBuilder<List<Produit>>(
       future: futureProduits,
       builder: (context, snapshot) {
@@ -32,11 +35,18 @@ class ProductGrid extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.search_off, size: 50, color: Colors.grey[400]),
-                const SizedBox(height: 16),
+                Icon(
+                  Icons.search_off,
+                  size: responsive.adaptive(mobile: 50, tablet: 64),
+                  color: Colors.grey[400],
+                ),
+                SizedBox(height: responsive.spacing(mobile: 16, tablet: 20)),
                 Text(
                   'Aucun produit disponible',
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: responsive.fontSize(mobile: 14, tablet: 16),
+                  ),
                 ),
               ],
             ),
@@ -44,16 +54,44 @@ class ProductGrid extends StatelessWidget {
         }
 
         final produits = snapshot.data!;
+        
+        // Nombre de colonnes adaptatif
+        final columns = crossAxisCount ?? responsive.columns(
+          mobile: 2,
+          tablet: 3,
+          desktop: 4,
+        );
+        
+        // Aspect ratio adaptatif
+        final aspectRatio = responsive.adaptive(
+          mobile: 0.57,
+          tablet: 0.65,
+          desktop: 0.7,
+        );
+        
+        // Espacement adaptatif
+        final spacing = responsive.spacing(
+          mobile: 12,
+          tablet: 16,
+          desktop: 20,
+        );
+        
+        // Padding adaptatif
+        final padding = responsive.padding(
+          mobile: const EdgeInsets.all(10),
+          tablet: const EdgeInsets.all(16),
+          desktop: const EdgeInsets.all(20),
+        );
 
         return GridView.builder(
-          padding: const EdgeInsets.all(10),
+          padding: padding,
           shrinkWrap: shrinkWrap,
           physics: physics,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: 0.57,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisCount: columns,
+            childAspectRatio: aspectRatio,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: spacing,
           ),
           itemCount: produits.length,
           itemBuilder: (context, index) {

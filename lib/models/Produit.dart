@@ -1,5 +1,6 @@
 import 'package:gestioncoop/models/Category.dart';
 import 'package:gestioncoop/models/Review.dart';
+import 'package:gestioncoop/widgets/common/images.dart';
 
 class Produit {
   final int id;
@@ -50,18 +51,8 @@ class Produit {
     print('JSON reçu pour Produit : ' + json.toString());
     String rawImageUrl = json['image'] ?? '';
 
-    // Gestion des URL invalides ou relatives
-    String fixedImageUrl = '';
-    if (rawImageUrl.startsWith('http')) {
-      // URL complète fournie par l'API
-      fixedImageUrl = rawImageUrl.replaceFirst('localhost', '10.0.2.2');
-    } else if (rawImageUrl.startsWith('/storage')) {
-      // Chemin relatif fourni par Laravel
-      fixedImageUrl = 'http://10.0.2.2:8000$rawImageUrl';
-    } else if (rawImageUrl.isNotEmpty) {
-      // Cas extrême : chemin sans slash initial
-      fixedImageUrl = 'http://10.0.2.2:8000/storage/$rawImageUrl';
-    }
+    // Utiliser la fonction utilitaire centralisée pour corriger l'URL
+    String fixedImageUrl = fixImageUrl(rawImageUrl);
 
     // Parsing robuste des reviews
     List<dynamic>? rawReviews = json['reviews'] ?? json['comments'];

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:gestioncoop/widgets/common/images.dart';
 
 class CustomProductNotification extends StatelessWidget {
   final String productName;
@@ -15,6 +16,9 @@ class CustomProductNotification extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Si l'image est vide, utiliser directement le placeholder local
+    final shouldUsePlaceholder = imageUrl.isEmpty;
+    
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.all(12),
@@ -33,19 +37,33 @@ class CustomProductNotification extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                color: Colors.grey[200],
-                child: const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-              errorWidget: (context, url, error) => const Icon(Icons.image),
-            ),
+            child: shouldUsePlaceholder
+                ? buildDefaultProductPlaceholder(
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  )
+                : CachedNetworkImage(
+                    imageUrl: fixImageUrl(imageUrl),
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) {
+                      print('Erreur de chargement d\'image: $error pour URL: $url');
+                      // Utiliser le placeholder local au lieu d'essayer de charger depuis le serveur
+                      return buildDefaultProductPlaceholder(
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
           ),
           const SizedBox(width: 12),
           Expanded(

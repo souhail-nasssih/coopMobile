@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gestioncoop/models/Produit.dart';
 import 'package:gestioncoop/widgets/common/badges.dart';
 import 'package:gestioncoop/widgets/common/buttons.dart';
+import 'package:gestioncoop/widgets/common/images.dart';
 import 'package:gestioncoop/models/Review.dart';
 
 class ProductDetailPage extends StatelessWidget {
@@ -55,33 +56,33 @@ class ProductDetailPage extends StatelessWidget {
     ],
   );
 
-  String getFixedImageUrl(String url) {
-    if (url.isEmpty) return '';
-    if (url.startsWith('/storage')) {
-      return 'http://192.168.1.10:8000$url'; // 🔹 Remplace par ton IP locale
-    }
-    if (url.contains('127.0.0.1')) {
-      return url.replaceFirst('127.0.0.1', '192.168.1.10'); // 🔹 Remplace ici aussi
-    }
-    return url;
-  }
-
   Widget buildProductImage(String? image) {
-    final imageUrl = getFixedImageUrl(image ?? '');
-    final isValidImageUrl = imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
-    print('imageUrl utilisé: $imageUrl');
-    if (isValidImageUrl) {
-      return CachedNetworkImage(
-        imageUrl: imageUrl,
+    // Si l'image est vide, utiliser directement le placeholder local
+    if (image == null || image.isEmpty) {
+      return buildDefaultProductPlaceholder(
+        width: double.infinity,
+        height: 300,
         fit: BoxFit.contain,
-        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-        errorWidget: (context, url, error) => const Icon(Icons.image, color: Colors.grey, size: 80),
-      );
-    } else {
-      return const Center(
-        child: Icon(Icons.image_not_supported, color: Colors.grey, size: 80),
       );
     }
+    
+    final imageUrl = fixImageUrl(image);
+    print('imageUrl utilisé: $imageUrl');
+    
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.contain,
+      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+      errorWidget: (context, url, error) {
+        print('Erreur de chargement d\'image: $error pour URL: $url');
+        // Utiliser le placeholder local au lieu d'essayer de charger depuis le serveur
+        return buildDefaultProductPlaceholder(
+          width: double.infinity,
+          height: 300,
+          fit: BoxFit.contain,
+        );
+      },
+    );
   }
 
   @override

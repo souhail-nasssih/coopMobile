@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gestioncoop/services/AuthService.dart';
+import 'package:gestioncoop/theme/app_theme.dart';
+import 'package:gestioncoop/widgets/common/buttons.dart';
+import 'package:gestioncoop/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,88 +15,113 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
+  bool _isLoading = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
 
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Center(
-          child: Card(
-            elevation: 8,
-            child: Container(
-              padding: const EdgeInsets.all(32.0),
-              constraints: const BoxConstraints(maxWidth: 350),
-              child: SingleChildScrollView(
+      backgroundColor: AppTheme.backgroundLight,
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 400),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundWhite,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  boxShadow: AppTheme.elevatedShadow,
+                ),
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const FlutterLogo(size: 100),
-                    _gap(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        "Welcome to Flutter!",
-                        style: Theme.of(context).textTheme.titleMedium,
+                    // Logo moderne
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        shape: BoxShape.circle,
+                        boxShadow: AppTheme.cardShadow,
+                      ),
+                      child: const Icon(
+                        Icons.shopping_basket_rounded,
+                        size: 48,
+                        color: Colors.white,
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        "Enter your email and password to continue.",
-                        style: Theme.of(context).textTheme.bodySmall,
-                        textAlign: TextAlign.center,
+                    const SizedBox(height: 24),
+                    Text(
+                      'Bienvenue',
+                      style: theme.textTheme.displaySmall?.copyWith(
+                        color: AppTheme.textPrimary,
+                        fontWeight: FontWeight.w800,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    _gap(),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Connectez-vous pour continuer',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
                     TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        // add email validation
                         if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
+                          return 'Veuillez entrer votre email';
                         }
-
                         bool emailValid = RegExp(
                           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
                         ).hasMatch(value);
                         if (!emailValid) {
-                          return 'Please enter a valid email';
+                          return 'Veuillez entrer un email valide';
                         }
-
                         return null;
                       },
                       decoration: const InputDecoration(
                         labelText: 'Email',
-                        hintText: 'Enter your email',
+                        hintText: 'Entrez votre email',
                         prefixIcon: Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(),
                       ),
                     ),
-                    _gap(),
+                    const SizedBox(height: 20),
                     TextFormField(
+                      controller: _passwordController,
+                      obscureText: !_isPasswordVisible,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter some text';
+                          return 'Veuillez entrer votre mot de passe';
                         }
-
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return 'Le mot de passe doit contenir au moins 6 caractères';
                         }
                         return null;
                       },
-                      obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Enter your password',
+                        labelText: 'Mot de passe',
+                        hintText: 'Entrez votre mot de passe',
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
-                        border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isPasswordVisible
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
                           ),
                           onPressed: () {
                             setState(() {
@@ -101,45 +131,57 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                     ),
-                    _gap(),
-                    CheckboxListTile(
-                      value: _rememberMe,
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setState(() {
-                          _rememberMe = value;
-                        });
-                      },
-                      title: const Text('Remember me'),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      dense: true,
-                      contentPadding: const EdgeInsets.all(0),
-                    ),
-                    _gap(),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              _rememberMe = value;
+                            });
+                          },
+                          activeColor: primaryColor,
+                        ),
+                        const Text(
+                          'Se souvenir de moi',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppTheme.textSecondary,
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(10.0),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    PrimaryButton(
+                      text: 'Se connecter',
+                      onPressed: _isLoading ? () {} : _handleLogin,
+                      isLoading: _isLoading,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'Sign in',
+                            'OU',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textSecondary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            /// do something
-                          }
-                        },
-                      ),
+                        Expanded(child: Divider(color: Colors.grey[300])),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SecondaryButton(
+                      text: 'Continuer avec Google',
+                      icon: Icons.login_rounded,
+                      onPressed: _isLoading ? () {} : _handleGoogleLogin,
                     ),
                   ],
                 ),
@@ -151,6 +193,149 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _gap() => const SizedBox(height: 16);
+  Future<void> _handleLogin() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _authService.loginWithEmailPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (result != null && result['success'] == true) {
+        if (mounted) {
+          // Recharger le panier depuis le serveur
+          try {
+            final cartProvider = Provider.of<CartProvider>(context, listen: false);
+            await cartProvider.reloadCart();
+          } catch (e) {
+            print('Erreur lors du rechargement du panier: $e');
+          }
+
+          Navigator.of(context).pushReplacementNamed('/');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Connexion réussie !'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result?['message'] ?? 'Erreur de connexion'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _authService.signInWithGoogle();
+
+      if (result != null && result['success'] == true) {
+        if (mounted) {
+          // Recharger le panier depuis le serveur
+          try {
+            final cartProvider = Provider.of<CartProvider>(context, listen: false);
+            await cartProvider.reloadCart();
+          } catch (e) {
+            print('Erreur lors du rechargement du panier: $e');
+          }
+
+          Navigator.of(context).pushReplacementNamed('/');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Connexion Google réussie !'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          final message = result?['message'] ?? 'Erreur de connexion Google';
+          final helpUrl = result?['helpUrl'];
+          
+          // Afficher un dialog avec instructions si c'est une erreur de configuration
+          if (result?['error'] == 'Erreur Google' && helpUrl != null) {
+            showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (context) => AlertDialog(
+                  title: const Text('Configuration Google Sign-In requise'),
+                  content: SingleChildScrollView(
+                    child: Text(message),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Fermer'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // Optionnel : ouvrir le guide
+                      },
+                      child: const Text('Voir le guide'),
+                    ),
+                  ],
+                ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 }
   

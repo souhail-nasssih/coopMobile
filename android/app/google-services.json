@@ -12,7 +12,16 @@
           "package_name": "com.example.coop"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "748540104556-8f96b3pm6j7f4pm9hcuruu7imrupt5t3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coop",
+            "certificate_hash": "43:91:62:9D:EE:69:11:69:5F:FD:CF:41:24:81:BA:72:2B:BD:73:D3"
+          }
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAtwooOGtA1yRTya_EOe-Oarb7Sin9gIlE"
@@ -31,7 +40,16 @@
           "package_name": "com.tonapp.gestioncoop"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "748540104556-8f96b3pm6j7f4pm9hcuruu7imrupt5t3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coop",
+            "certificate_hash": "43:91:62:9D:EE:69:11:69:5F:FD:CF:41:24:81:BA:72:2B:BD:73:D3"
+          }
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAtwooOGtA1yRTya_EOe-Oarb7Sin9gIlE"

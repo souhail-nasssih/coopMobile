@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gestioncoop/models/GrandCategory.dart';
 import 'package:gestioncoop/screens/product_by_categorie/product_by_categorie.dart';
 import 'package:gestioncoop/services/category_service.dart';
+import 'package:gestioncoop/theme/app_theme.dart';
+import 'package:gestioncoop/helpers/responsive.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -28,37 +30,93 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Catégories'),
-        centerTitle: true,
-      ),
+      backgroundColor: AppTheme.backgroundLight,
       body: FutureBuilder<List<GrandCategory>>(
         future: _categoryService.fetchGrandCategories(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            );
           } else if (snapshot.hasError) {
             return Center(
-              child: Text(
-                'Erreur: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 64,
+                    color: AppTheme.errorColor,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Erreur: ${snapshot.error}',
+                    style: const TextStyle(
+                      color: AppTheme.errorColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Aucune catégorie disponible'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.category_outlined,
+                    size: 64,
+                    color: AppTheme.textSecondary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Aucune catégorie disponible',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           final categories = snapshot.data!;
+          final responsive = Responsive(context);
 
           return Padding(
-            padding: const EdgeInsets.all(12),
+            padding: responsive.padding(
+              mobile: const EdgeInsets.all(16),
+              tablet: const EdgeInsets.all(24),
+              desktop: const EdgeInsets.all(32),
+            ),
             child: GridView.builder(
               itemCount: categories.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: responsive.columns(
+                  mobile: 2,
+                  tablet: 3,
+                  desktop: 4,
+                ),
+                crossAxisSpacing: responsive.spacing(
+                  mobile: 16,
+                  tablet: 20,
+                  desktop: 24,
+                ),
+                mainAxisSpacing: responsive.spacing(
+                  mobile: 16,
+                  tablet: 20,
+                  desktop: 24,
+                ),
+                childAspectRatio: responsive.adaptive(
+                  mobile: 0.9,
+                  tablet: 1.0,
+                  desktop: 1.1,
+                ),
               ),
               itemBuilder: (context, index) {
                 final category = categories[index];
@@ -86,44 +144,75 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     final color = _getCategoryColor(category.id);
     final icon = _getCategoryIcon(category.id);
 
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  shape: BoxShape.circle,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundWhite,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          child: Padding(
+            padding: responsive.padding(
+              mobile: const EdgeInsets.all(20),
+              tablet: const EdgeInsets.all(24),
+              desktop: const EdgeInsets.all(28),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(
+                    responsive.adaptive(mobile: 20, tablet: 24, desktop: 28),
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        color,
+                        color.withOpacity(0.7),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    icon,
+                    size: responsive.adaptive(mobile: 36, tablet: 42, desktop: 48),
+                    color: Colors.white,
+                  ),
                 ),
-                child: Icon(
-                  icon,
-                  size: 32,
-                  color: color,
+                SizedBox(
+                  height: responsive.spacing(mobile: 16, tablet: 20, desktop: 24),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                category.name,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                Text(
+                  category.name,
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(mobile: 16, tablet: 18, desktop: 20),
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: -0.3,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
